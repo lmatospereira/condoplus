@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays, Eye, FileText, Handshake, KeyRound, Lock, Megaphone, ShieldCheck, Smartphone, Users, Wallet } from "lucide-react";
 import { SLOGAN } from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import { InstalarApp } from "@/components/instalar-app";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { getUsuario } from "@/lib/tenant";
 
@@ -72,6 +73,7 @@ export default async function HomePage() {
                   </Button>
                 </div>
               )}
+              <InstalarApp variant="outline" className="items-start [&_button]:border-white/40 [&_button]:bg-transparent [&_button]:text-white [&_button]:hover:bg-white/10 [&_p]:text-card-foreground" />
               {!usuario ? (
                 <p className="text-sm text-white/70">
                   É morador e ainda não tem conta? Peça ao síndico o <strong className="text-white">link de convite</strong> do seu
