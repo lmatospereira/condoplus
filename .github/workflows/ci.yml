@@ -7,9 +7,10 @@ on:
     branches: ["**"]
 
 # Push numa branch com PR aberto dispara push + pull_request para o mesmo commit;
-# sem isso, os dois rodariam em paralelo e cada um acionaria o deploy.
+# sem isso, os dois rodariam em paralelo e cada um acionaria o deploy. A branch
+# entra na chave para que main e develop no mesmo commit não se cancelem.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
+  group: ci-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 
 jobs:
