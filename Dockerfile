@@ -19,7 +19,9 @@ RUN npm ci
 FROM deps AS build
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+# Placeholder só para o build (coleta de páginas importa o auth); o segredo real
+# vem do .env em runtime e este estágio não vai para a imagem final.
+RUN BETTER_AUTH_SECRET=build-only-placeholder-not-used-at-runtime npm run build
 
 # ---------------------------------------------------------------------------
 # 3. CLI do Prisma isolada, só para `prisma migrate deploy` no start
