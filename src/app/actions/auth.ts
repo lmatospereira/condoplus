@@ -53,5 +53,5 @@ export async function entrar(_prev: LoginState, formData: FormData): Promise<Log
 export async function sair() {
   await auth.api.signOut({ headers: await headers() });
   (await cookies()).delete(COOKIE_CONDOMINIO);
-  redirect("/login");
+  redirect("/");
 }

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import { RegistrarSw } from "@/components/registrar-sw";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
   title: { default: "Zelora", template: "%s · Zelora" },
   description: "Zelora — Gestão que cuida de cada detalhe. Comunicados, reservas e moradores do seu condomínio.",
   applicationName: "Zelora",
+  icons: { apple: "/icons/apple-touch-icon.png" },
   appleWebApp: { capable: true, title: "Zelora", statusBarStyle: "default" },
 };
 
@@ -24,6 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="pt-BR" className={inter.variable}>
       <body className="min-h-dvh font-sans antialiased">
         {children}
+        <RegistrarSw />
         <Toaster richColors position="top-center" />
       </body>
     </html>

@@ -1,3 +1,4 @@
+import { InstalarApp } from "@/components/instalar-app";
 import type { Metadata } from "next";
 import { LogOut } from "lucide-react";
 import { sair } from "@/app/actions/auth";
@@ -93,6 +94,7 @@ export default async function PerfilPage() {
           <TrocarSenhaForm />
         </CardContent>
       </Card>
+      <InstalarApp className="mt-6 sm:max-w-xs" />
       <form action={sair} className="mt-6 md:hidden">
         <Button variant="outline" type="submit" className="w-full">
           <LogOut aria-hidden /> Sair

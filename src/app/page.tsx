@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, FileText, KeyRound, Megaphone, ShieldCheck, Smartphone, Users, Wallet } from "lucide-react";
-import { Logo, SLOGAN } from "@/components/logo";
+import { ArrowRight, CalendarDays, Eye, FileText, Handshake, KeyRound, Lock, Megaphone, ShieldCheck, Smartphone, Users, Wallet } from "lucide-react";
+import { SLOGAN } from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import { InstalarApp } from "@/components/instalar-app";
+import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { getUsuario } from "@/lib/tenant";
 
 export const metadata: Metadata = {
   title: { absolute: `Zelora — ${SLOGAN}` },
   description:
-    "Zelora: comunicados, reservas de espaços e gestão de moradores para condomínios de casas, num app simples para síndicos e moradores.",
+    "Zelora: comunicados, reservas de espaços e gestão de moradores para condomínios de casas, num só app para síndicos e moradores.",
   openGraph: { title: "Zelora", description: SLOGAN, type: "website", locale: "pt_BR" },
 };
 
@@ -25,26 +27,20 @@ const MODULOS = [
   { Icone: Wallet, titulo: "Prestação de contas", texto: "Despesas por categoria, comparativos e exportação para assembleia.", pronto: false },
 ];
 
+const VALORES = [
+  { Icone: Eye, titulo: "Transparência", texto: "Decisões, comunicados e contas visíveis para quem tem direito de ver." },
+  { Icone: Lock, titulo: "Respeito à privacidade", texto: "Os dados de cada condomínio e de cada morador são tratados com cuidado e sigilo." },
+  { Icone: Handshake, titulo: "Proximidade", texto: "Comunicação direta entre síndico e moradores, sem ruído." },
+  { Icone: ShieldCheck, titulo: "Confiabilidade", texto: "Informação correta, registrada e disponível quando você precisa." },
+];
+
 export default async function HomePage() {
   const usuario = await getUsuario();
   const destinoApp = usuario?.isMaster ? "/admin" : "/inicio";
 
   return (
     <div className="min-h-dvh bg-background">
-      <header className="pt-safe border-b border-border bg-card/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          <Logo />
-          {usuario ? (
-            <Button asChild size="sm">
-              <Link href={destinoApp}>Abrir o app</Link>
-            </Button>
-          ) : (
-            <Button asChild size="sm" variant="outline">
-              <Link href="/login">Entrar</Link>
-            </Button>
-          )}
-        </div>
-      </header>
+      <SiteHeader usuario={usuario} />
 
       <main>
         <section className="bg-brand-900 text-white">
@@ -77,6 +73,7 @@ export default async function HomePage() {
                   </Button>
                 </div>
               )}
+              <InstalarApp variant="outline" className="items-start [&_button]:border-white/40 [&_button]:bg-transparent [&_button]:text-white [&_button]:hover:bg-white/10 [&_p]:text-card-foreground" />
               {!usuario ? (
                 <p className="text-sm text-white/70">
                   É morador e ainda não tem conta? Peça ao síndico o <strong className="text-white">link de convite</strong> do seu
@@ -103,7 +100,7 @@ export default async function HomePage() {
 
         <section aria-labelledby="modulos" className="mx-auto max-w-5xl px-4 py-14">
           <h2 id="modulos" className="text-2xl font-semibold tracking-tight">O que a Zelora faz</h2>
-          <p className="mt-1 text-muted-foreground">Enxuta de propósito: só o que o dia a dia do condomínio precisa.</p>
+          <p className="mt-1 text-muted-foreground">Tudo o que a gestão do seu condomínio precisa, organizado num só lugar.</p>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {MODULOS.map(({ Icone, titulo, texto, pronto }) => (
               <li key={titulo} className="rounded-lg border border-border bg-card p-5">
@@ -128,6 +125,40 @@ export default async function HomePage() {
           </ul>
         </section>
 
+        <section aria-labelledby="missao" className="border-t border-border bg-muted/40">
+          <div className="mx-auto max-w-5xl px-4 py-14">
+            <h2 id="missao" className="text-2xl font-semibold tracking-tight">Missão e valores</h2>
+            <p className="mt-3 max-w-prose text-base text-foreground md:text-lg">
+              <strong className="font-semibold text-primary">Nossa missão:</strong> tornar a gestão de condomínios de casas mais
+              transparente, organizada e próxima, aproximando síndicos e moradores com informação confiável e acessível.
+            </p>
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {VALORES.map(({ Icone, titulo, texto }) => (
+                <li key={titulo} className="rounded-lg border border-border bg-card p-5">
+                  <span className="grid size-10 place-items-center rounded-md bg-accent-soft text-primary">
+                    <Icone className="size-5" aria-hidden />
+                  </span>
+                  <h3 className="mt-3 font-semibold">{titulo}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{texto}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section aria-labelledby="contato-cta" className="border-t border-border">
+          <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-12 sm:flex-row sm:items-center sm:justify-between">
+            <h2 id="contato-cta" className="text-xl font-semibold tracking-tight">
+              Quer ver a Zelora no seu condomínio? Fale com a gente
+            </h2>
+            <Button asChild className="w-full sm:w-auto">
+              <Link href="/contato">
+                Fale com a gente <ArrowRight aria-hidden />
+              </Link>
+            </Button>
+          </div>
+        </section>
+
         <section className="border-t border-border bg-card">
           <div className="mx-auto grid max-w-5xl gap-6 px-4 py-12 md:grid-cols-3">
             {[
@@ -147,17 +178,7 @@ export default async function HomePage() {
         </section>
       </main>
 
-      <footer className="pb-safe border-t border-border">
-        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <Logo reduzida className="opacity-80" />
-          <p>
-            Zelora — {SLOGAN} ·{" "}
-            <Link href="/termos" className="underline underline-offset-4">
-              Termos e privacidade
-            </Link>
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
