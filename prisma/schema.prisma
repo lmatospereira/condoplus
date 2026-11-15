@@ -161,24 +161,26 @@ enum StatusVinculo {
 }
 
 model Vinculo {
-  id              String        @id @default(cuid())
-  userId          String
-  user            User          @relation("VinculoUser", fields: [userId], references: [id], onDelete: Cascade)
-  condominioId    String
-  condominio      Condominio    @relation(fields: [condominioId], references: [id], onDelete: Cascade)
-  unidadeId       String?
-  unidade         Unidade?      @relation(fields: [unidadeId], references: [id])
-  papel           Papel
-  tipo            TipoMorador?
-  status          StatusVinculo @default(PENDENTE)
-  ehTransferencia Boolean       @default(false)
-  aprovadoPorId   String?
-  aprovadoPor     User?         @relation("VinculoAprovador", fields: [aprovadoPorId], references: [id])
-  aprovadoEm      DateTime?
-  motivoRecusa    String?
-  desativadoEm    DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                 String        @id @default(cuid())
+  userId             String
+  user               User          @relation("VinculoUser", fields: [userId], references: [id], onDelete: Cascade)
+  condominioId       String
+  condominio         Condominio    @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  unidadeId          String?
+  unidade            Unidade?      @relation(fields: [unidadeId], references: [id])
+  papel              Papel
+  tipo               TipoMorador?
+  status             StatusVinculo @default(PENDENTE)
+  ehTransferencia    Boolean       @default(false)
+  aprovadoPorId      String?
+  aprovadoPor        User?         @relation("VinculoAprovador", fields: [aprovadoPorId], references: [id])
+  aprovadoEm         DateTime?
+  motivoRecusa       String?
+  desativadoEm       DateTime?
+  /// Pedido de mudança de casa: ao aprovar, este vínculo antigo do mesmo usuário é desativado.
+  substituiVinculoId String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
   @@index([condominioId])
   @@index([userId])

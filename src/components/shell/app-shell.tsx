@@ -12,13 +12,15 @@ type Props = {
   papel: string;
   itens: NavItem[];
   podeGerirMoradores: boolean;
+  /** Pendências de aprovação (mostra no ícone de moradores do cabeçalho mobile). */
+  pendencias?: number;
   trocarCondominio: boolean;
   /** Master em modo suporte: mostra o atalho de volta para /admin. */
   master?: boolean;
   children: React.ReactNode;
 };
 
-export function AppShell({ condominio, usuario, papel, itens, podeGerirMoradores, trocarCondominio, master = false, children }: Props) {
+export function AppShell({ condominio, usuario, papel, itens, podeGerirMoradores, pendencias = 0, trocarCondominio, master = false, children }: Props) {
   return (
     <div className="min-h-dvh md:grid md:grid-cols-[16rem_1fr]">
       <aside className="sticky top-0 hidden h-dvh flex-col gap-6 border-r border-border bg-card p-4 md:flex">
@@ -61,9 +63,10 @@ export function AppShell({ condominio, usuario, papel, itens, podeGerirMoradores
             </Button>
           ) : null}
           {podeGerirMoradores ? (
-            <Button asChild variant="ghost" size="icon" aria-label="Moradores">
-              <Link href="/moradores">
+            <Button asChild variant="ghost" size="icon" aria-label={pendencias ? `Moradores (${pendencias} pendências)` : "Moradores"}>
+              <Link href="/moradores" className="relative">
                 <Users aria-hidden />
+                {pendencias ? <span className="absolute right-2 top-2 size-2.5 rounded-full bg-destructive" aria-hidden /> : null}
               </Link>
             </Button>
           ) : null}

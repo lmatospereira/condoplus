@@ -35,7 +35,8 @@ export const auth = betterAuth({
     window: 60,
     max: 100,
     customRules: {
-      "/sign-in/email": { window: 60, max: 5 },
+      // LOGIN_RATE_LIMIT só para testes E2E locais; em produção fica o padrão (5/min).
+      "/sign-in/email": { window: 60, max: Number(process.env.LOGIN_RATE_LIMIT ?? 5) },
       "/request-password-reset": { window: 300, max: 3 },
       "/reset-password": { window: 300, max: 5 },
       "/change-password": { window: 300, max: 10 },
