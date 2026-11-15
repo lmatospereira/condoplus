@@ -1,0 +1,29 @@
+# dependências
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# prisma client gerado (recriado por `prisma generate` no postinstall/build)
+/src/generated/
+
+# testes
+/coverage
+/test-results/
+/playwright-report/
+
+# dados locais (uploads, Postgres/MinIO montados em pasta)
+/.data/
+
+# env (o .env.example é versionado)
+.env
+.env.*
+!.env.example
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*

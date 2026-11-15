@@ -1,0 +1,394 @@
+// condoplus — modelo de dados
+// Índices únicos parciais (reserva ativa e síndico ativo) ficam em SQL puro na
+// migration inicial, porque o Prisma não os gera pelo schema. Veja docs/DECISOES.md.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Autenticação (tabelas exigidas pelo Better Auth)
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  telefone      String?
+  isMaster      Boolean  @default(false)
+  ativo         Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+  vinculos Vinculo[] @relation("VinculoUser")
+
+  vinculosAprovados  Vinculo[]           @relation("VinculoAprovador")
+  convitesCriados    Convite[]
+  comunicados        Comunicado[]
+  leituras           ComunicadoLeitura[]
+  reservasCriadas    Reserva[]           @relation("ReservaCriador")
+  reservasExcluidas  Reserva[]           @relation("ReservaExcluidor")
+  documentosEnviados Documento[]
+  despesasLancadas   Despesa[]
+  auditLogs          AuditLog[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model RateLimit {
+  id          String @id
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+
+  @@map("rate_limit")
+}
+
+// ---------------------------------------------------------------------------
+// Tenant
+// ---------------------------------------------------------------------------
+
+model Condominio {
+  id        String   @id @default(cuid())
+  nome      String
+  endereco  String
+  cidade    String
+  uf        String   @db.Char(2)
+  cnpj      String?
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unidades    Unidade[]
+  vinculos    Vinculo[]
+  convites    Convite[]
+  comunicados Comunicado[]
+  espacos     Espaco[]
+  reservas    Reserva[]
+  documentos  Documento[]
+  despesas    Despesa[]
+  auditLogs   AuditLog[]
+}
+
+model Unidade {
+  id            String     @id @default(cuid())
+  condominioId  String
+  condominio    Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  identificador String
+  ativo         Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+
+  vinculos Vinculo[]
+  reservas Reserva[]
+
+  @@unique([condominioId, identificador])
+  @@index([condominioId])
+}
+
+enum Papel {
+  SINDICO
+  MORADOR
+}
+
+enum TipoMorador {
+  TITULAR
+  COMORADOR
+}
+
+enum StatusVinculo {
+  PENDENTE
+  ATIVO
+  RECUSADO
+  INATIVO
+}
+
+model Vinculo {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation("VinculoUser", fields: [userId], references: [id], onDelete: Cascade)
+  condominioId    String
+  condominio      Condominio    @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  unidadeId       String?
+  unidade         Unidade?      @relation(fields: [unidadeId], references: [id])
+  papel           Papel
+  tipo            TipoMorador?
+  status          StatusVinculo @default(PENDENTE)
+  ehTransferencia Boolean       @default(false)
+  aprovadoPorId   String?
+  aprovadoPor     User?         @relation("VinculoAprovador", fields: [aprovadoPorId], references: [id])
+  aprovadoEm      DateTime?
+  motivoRecusa    String?
+  desativadoEm    DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([condominioId])
+  @@index([userId])
+  @@index([unidadeId])
+}
+
+model Convite {
+  id           String     @id @default(cuid())
+  condominioId String
+  condominio   Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  token        String     @unique
+  criadoPorId  String
+  criadoPor    User       @relation(fields: [criadoPorId], references: [id])
+  expiraEm     DateTime?
+  revogadoEm   DateTime?
+  createdAt    DateTime   @default(now())
+
+  @@index([condominioId])
+}
+
+// ---------------------------------------------------------------------------
+// Comunicados
+// ---------------------------------------------------------------------------
+
+enum CategoriaComunicado {
+  GERAL
+  MANUTENCAO
+  ASSEMBLEIA
+  SEGURANCA
+  EVENTOS
+}
+
+model Comunicado {
+  id           String              @id @default(cuid())
+  condominioId String
+  condominio   Condominio          @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  titulo       String
+  conteudo     String
+  categoria    CategoriaComunicado @default(GERAL)
+  importante   Boolean             @default(false)
+  fixado       Boolean             @default(false)
+  autorId      String
+  autor        User                @relation(fields: [autorId], references: [id])
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  anexos   ComunicadoAnexo[]
+  leituras ComunicadoLeitura[]
+
+  @@index([condominioId, fixado, createdAt])
+}
+
+model ComunicadoAnexo {
+  id           String     @id @default(cuid())
+  condominioId String
+  comunicadoId String
+  comunicado   Comunicado @relation(fields: [comunicadoId], references: [id], onDelete: Cascade)
+  nome         String
+  arquivoKey   String
+  mime         String
+  tamanho      Int
+  createdAt    DateTime   @default(now())
+
+  @@index([condominioId])
+  @@index([comunicadoId])
+}
+
+model ComunicadoLeitura {
+  comunicadoId String
+  comunicado   Comunicado @relation(fields: [comunicadoId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lidoEm       DateTime   @default(now())
+
+  @@id([comunicadoId, userId])
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Reservas
+// ---------------------------------------------------------------------------
+
+enum ModoReserva {
+  DIA_INTEIRO
+  PERIODOS
+}
+
+model Espaco {
+  id                     String      @id @default(cuid())
+  condominioId           String
+  condominio             Condominio  @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  nome                   String
+  capacidade             Int?
+  regras                 String?
+  ativo                  Boolean     @default(true)
+  modo                   ModoReserva @default(DIA_INTEIRO)
+  periodos               String[]
+  antecedenciaMinDias    Int?
+  antecedenciaMaxDias    Int?
+  limiteMensalPorUnidade Int?
+  diasBloqueados         DateTime[]  @db.Date
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+
+  reservas Reserva[]
+
+  @@index([condominioId])
+}
+
+model Reserva {
+  id            String     @id @default(cuid())
+  condominioId  String
+  condominio    Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  espacoId      String
+  espaco        Espaco     @relation(fields: [espacoId], references: [id], onDelete: Cascade)
+  unidadeId     String
+  unidade       Unidade    @relation(fields: [unidadeId], references: [id])
+  data          DateTime   @db.Date
+  /// NOT NULL de propósito: "DIA_INTEIRO" no modo dia inteiro (ver DECISOES.md)
+  periodo       String
+  criadoPorId   String
+  criadoPor     User       @relation("ReservaCriador", fields: [criadoPorId], references: [id])
+  createdAt     DateTime   @default(now())
+  excluidoEm    DateTime?
+  excluidoPorId String?
+  excluidoPor   User?      @relation("ReservaExcluidor", fields: [excluidoPorId], references: [id])
+
+  @@index([condominioId, data])
+  @@index([espacoId, data])
+  @@index([unidadeId])
+}
+
+// ---------------------------------------------------------------------------
+// Documentos e prestação de contas
+// ---------------------------------------------------------------------------
+
+enum CategoriaDocumento {
+  CONVENCAO
+  REGIMENTO_INTERNO
+  ATAS_ASSEMBLEIA
+  PRESTACAO_CONTAS
+  CONTRATOS
+  OUTROS
+}
+
+model Documento {
+  id             String             @id @default(cuid())
+  condominioId   String
+  condominio     Condominio         @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  titulo         String
+  categoria      CategoriaDocumento
+  dataReferencia DateTime           @db.Date
+  arquivoKey     String
+  nomeArquivo    String
+  mime           String
+  tamanho        Int
+  enviadoPorId   String
+  enviadoPor     User               @relation(fields: [enviadoPorId], references: [id])
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([condominioId, categoria])
+}
+
+enum CategoriaDespesa {
+  AGUA
+  ENERGIA
+  LIMPEZA
+  JARDINAGEM
+  MANUTENCAO
+  SEGURANCA
+  ADMINISTRACAO
+  SEGURO
+  OBRAS
+  MATERIAL
+  IMPOSTOS_TAXAS
+  OUTROS
+}
+
+model Despesa {
+  id              String           @id @default(cuid())
+  condominioId    String
+  condominio      Condominio       @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  data            DateTime         @db.Date
+  categoria       CategoriaDespesa
+  descricao       String
+  valorCentavos   Int
+  comprovanteKey  String?
+  comprovanteMime String?
+  lancadoPorId    String
+  lancadoPor      User             @relation(fields: [lancadoPorId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([condominioId, data])
+}
+
+// ---------------------------------------------------------------------------
+// Auditoria
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id           String      @id @default(cuid())
+  condominioId String?
+  condominio   Condominio? @relation(fields: [condominioId], references: [id], onDelete: SetNull)
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  acao         String
+  entidade     String
+  entidadeId   String?
+  dados        Json?
+  createdAt    DateTime    @default(now())
+
+  @@index([condominioId, createdAt])
+}

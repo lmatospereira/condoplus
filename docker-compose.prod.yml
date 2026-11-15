@@ -1,0 +1,79 @@
+# Produção na VPS OCI (seção 16). Fica em ~/condoplus/docker-compose.yml na VPS,
+# baixado pelo workflow de deploy a cada versão. Nenhuma porta é publicada no
+# host: o Caddy do devbox alcança o app pela rede externa `devbox_default`.
+name: condoplus
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  app:
+    image: ghcr.io/lmatospereira/condoplus:${IMAGE_TAG:-latest}
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-condoplus}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-condoplus}
+      STORAGE_DRIVER: s3
+      S3_ENDPOINT: http://minio:9000
+      S3_FORCE_PATH_STYLE: "true"
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      internal: {}
+      devbox_default:
+        aliases: [condoplus-app]
+    restart: unless-stopped
+    mem_limit: 1g
+    logging: *logging
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-condoplus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-condoplus}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    mem_limit: 512m
+    logging: *logging
+
+  minio:
+    image: cgr.dev/chainguard/minio:latest
+    command: ["server", "/data"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio-data:/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    mem_limit: 512m
+    logging: *logging
+
+networks:
+  internal: {}
+  devbox_default:
+    external: true
+
+volumes:
+  db-data:
+  minio-data:
