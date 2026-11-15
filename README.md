@@ -41,10 +41,19 @@ npm run dev                   # http://localhost:3000
 |---|---|
 | `npm run dev` | servidor de desenvolvimento |
 | `npm run lint` / `npm run typecheck` | ESLint / TypeScript |
-| `npm test` | Vitest (permissões e isolamento entre tenants; usa o banco `<db>_test`) |
+| `npm test` | Vitest (permissões, isolamento entre tenants e regras de negócio; usa o banco `<db>_test`) |
+| `npm run test:e2e` | Playwright contra um servidor local na porta 3100 (veja `playwright.config.ts`) |
 | `npm run build` | build de produção (standalone) |
 | `npm run db:migrate` | `prisma migrate dev` |
 | `npm run db:seed` | seed de exemplo |
+
+## Acesso sem e-mail
+
+Por enquanto o sistema **não envia e-mails**:
+
+- **Síndico:** o Admin Master cadastra (Admin → condomínio → Síndico) e recebe uma **senha provisória** na tela, com um botão para copiar a mensagem pronta para enviar por WhatsApp. No primeiro acesso, o síndico é obrigado a definir uma senha nova.
+- **Esqueceu a senha:** o master usa **"Redefinir senha"** (no síndico ou no morador, dentro do condomínio) e repassa a nova senha provisória.
+- **Trocar a própria senha:** Perfil (síndico/morador) ou o ícone de chave no `/admin` (master).
 
 ## Variáveis de ambiente
 

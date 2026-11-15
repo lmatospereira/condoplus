@@ -23,6 +23,8 @@ model User {
   image         String?
   telefone      String?
   isMaster      Boolean  @default(false)
+  /// Senha provisória definida pelo master: obriga a troca no próximo acesso.
+  trocarSenha   Boolean  @default(false)
   ativo         Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

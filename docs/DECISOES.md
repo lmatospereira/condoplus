@@ -33,7 +33,7 @@ Registro das escolhas feitas durante a implementação (seção 15 da especifica
   - `Vinculo_sindico_ativo_condominio_key`: `(condominioId) WHERE papel = 'SINDICO' AND status = 'ATIVO'`.
 - `Reserva.periodo` é **NOT NULL** (`DIA_INTEIRO` no modo dia inteiro). Com NULL, dois nulos seriam considerados diferentes e o índice deixaria passar duplicatas.
 - Datas sem horário (`@db.Date`) em reservas, documentos e despesas. As regras de "hoje" vão usar o fuso America/Sao_Paulo (fase 4).
-- As tabelas `PasswordResetToken`/`SetPasswordToken` da especificação **não** foram criadas: o Better Auth já guarda tokens de redefinição de senha na tabela `verification`, e o "definir senha" do síndico (fase 2) vai usar o mesmo mecanismo.
+- As tabelas `PasswordResetToken`/`SetPasswordToken` da especificação **não** foram criadas: a fase 2 passou a funcionar sem e-mail (ver abaixo).
 
 ### Storage
 - **MinIO**: a imagem `minio/minio` saiu do Docker Hub (o MinIO parou de publicar imagens da edição comunitária). Foi usada a **`cgr.dev/chainguard/minio`**, compatível (mesmo binário e variáveis), com arm64 e com o `mc` para o healthcheck. O driver de storage continua S3 genérico (fase 5): dá para trocar por OCI Object Storage, R2 ou S3 só pelas variáveis de ambiente.
@@ -51,3 +51,26 @@ Registro das escolhas feitas durante a implementação (seção 15 da especifica
 
 ### Testes
 - Vitest com um banco separado (`<DATABASE_URL>_test`, ou `TEST_DATABASE_URL`), migrado com `prisma migrate deploy` no global setup. Cada teste cria e apaga os próprios dados. O `migrate reset` não é usado (destrutivo).
+
+## Fase 2 — Admin Master (sem e-mail)
+
+### Cadastro manual em vez de e-mail (mudança pedida pelo usuário)
+- A especificação (5.2) previa um e-mail com link para o síndico definir a senha. Por decisão do usuário, a fase 2 **não depende de e-mail**:
+  - ao cadastrar um síndico com e-mail novo, o sistema cria a conta com uma **senha provisória** (3 blocos de 4 caracteres sem ambíguos, ~70 bits, ex. `k7Pq-xM3a-9vTz`), exibida **uma única vez** ao master, com um botão "Copiar mensagem" pronta para WhatsApp;
+  - a senha provisória marca `User.trocarSenha = true`. Enquanto esse campo for verdadeiro, `requireUsuario`/`getTenantContext` mandam o usuário para `/trocar-senha`, e nenhuma página do app nem do admin abre antes da troca;
+  - o "esqueci minha senha" por e-mail foi trocado por **"Redefinir senha"** feito pelo master (síndico e moradores ativos). A ação gera uma nova senha provisória e encerra as sessões abertas;
+  - todo usuário pode trocar a própria senha no Perfil (o master, em `/admin/senha`). Isso usa `auth.api.changePassword` com `revokeOtherSessions`.
+- Se o e-mail informado já tem conta, ela é **vinculada** como síndico e a senha não é alterada (não aparece senha provisória).
+- A camada de e-mail continua prevista para quando houver um provedor (Resend/SMTP 587). A troca é aditiva: dá para voltar ao link por e-mail sem migrar dados.
+
+### Regras
+- Os serviços ficam em `src/server/admin.ts`. São funções que recebem o `ator`, chamam `assertCan` e são testadas em `tests/integration/admin.test.ts`. As server actions (`src/app/admin/actions.ts`) só validam o formulário (Zod em `src/lib/schemas/admin.ts`) e traduzem os erros.
+- **Troca de síndico**: tudo numa transação. O vínculo SINDICO anterior vira `INATIVO` (com `desativadoEm`) e o novo é criado `ATIVO`. O índice único parcial garante no máximo um síndico ativo, mesmo com requisições concorrentes. O vínculo MORADOR do síndico anterior não é afetado.
+- O master não pode ser síndico. "Remover síndico" deixa o condomínio sem síndico.
+- **Casas**: "adicionar em sequência" continua a numeração a partir da maior `Casa NN` existente. Identificador duplicado gera um erro amigável (P2002). Casas são **desativadas**, nunca excluídas, para manter o histórico.
+- **Espaços**: o modo de reserva não pode mudar com reservas futuras ativas (data ≥ hoje em America/Sao_Paulo), e um período com reserva futura não pode ser removido. Espaços com histórico de reservas não podem ser excluídos, só desativados. Dias bloqueados são digitados como `AAAA-MM-DD`.
+- **Auditoria**: criação e edição de condomínio, casas e espaços, definição, troca e remoção de síndico e redefinição de senha (sem a senha). O detalhe do condomínio mostra as últimas 30 ações.
+
+### Testes
+- Vitest: 47 testes (permissões, isolamento, regras da fase 2, datas no fuso de SP).
+- **Playwright** (`npm run test:e2e`, `tests/e2e`, perfil Pixel 7): o master cria o condomínio, renomeia uma casa, cadastra um espaço e o síndico; o síndico entra com a senha provisória e é obrigado a trocá-la; a troca de síndico tira o acesso do anterior. Roda contra um servidor local já de pé (ver `playwright.config.ts`); ainda não está no CI.

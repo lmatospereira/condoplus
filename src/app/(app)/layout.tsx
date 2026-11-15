@@ -23,6 +23,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       itens={navItems({ podeGerirMoradores })}
       podeGerirMoradores={podeGerirMoradores}
       trocarCondominio={trocar}
+      master={ator.isMaster}
     >
       {children}
     </AppShell>
