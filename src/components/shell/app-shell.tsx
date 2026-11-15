@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LogOut, User, Users } from "lucide-react";
+import { LogOut, Shield, User, Users } from "lucide-react";
 import { sair } from "@/app/actions/auth";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,12 @@ type Props = {
   itens: NavItem[];
   podeGerirMoradores: boolean;
   trocarCondominio: boolean;
+  /** Master em modo suporte: mostra o atalho de volta para /admin. */
+  master?: boolean;
   children: React.ReactNode;
 };
 
-export function AppShell({ condominio, usuario, papel, itens, podeGerirMoradores, trocarCondominio, children }: Props) {
+export function AppShell({ condominio, usuario, papel, itens, podeGerirMoradores, trocarCondominio, master = false, children }: Props) {
   return (
     <div className="min-h-dvh md:grid md:grid-cols-[16rem_1fr]">
       <aside className="sticky top-0 hidden h-dvh flex-col gap-6 border-r border-border bg-card p-4 md:flex">
@@ -26,9 +28,14 @@ export function AppShell({ condominio, usuario, papel, itens, podeGerirMoradores
           <p className="truncate text-xs text-muted-foreground">
             {usuario} · {papel}
           </p>
-          {trocarCondominio ? (
+          {trocarCondominio && !master ? (
             <Link href="/selecionar-condominio" className="text-xs text-primary underline underline-offset-4">
               Trocar condomínio
+            </Link>
+          ) : null}
+          {master ? (
+            <Link href="/admin" className="mt-1 flex items-center gap-1 text-xs text-primary underline underline-offset-4">
+              <Shield className="size-3" aria-hidden /> Voltar ao Admin Master
             </Link>
           ) : null}
         </div>
@@ -46,6 +53,13 @@ export function AppShell({ condominio, usuario, papel, itens, podeGerirMoradores
             <p className="truncate text-sm font-semibold">{condominio}</p>
             <p className="truncate text-xs text-muted-foreground">{papel}</p>
           </div>
+          {master ? (
+            <Button asChild variant="ghost" size="icon" aria-label="Voltar ao Admin Master">
+              <Link href="/admin">
+                <Shield aria-hidden />
+              </Link>
+            </Button>
+          ) : null}
           {podeGerirMoradores ? (
             <Button asChild variant="ghost" size="icon" aria-label="Moradores">
               <Link href="/moradores">

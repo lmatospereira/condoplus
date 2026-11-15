@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LogOut } from "lucide-react";
 import { sair } from "@/app/actions/auth";
 import { PageHeader } from "@/components/page-header";
+import { TrocarSenhaForm } from "@/components/trocar-senha-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/db";
@@ -55,6 +56,14 @@ export default async function PerfilPage() {
               </dd>
             </div>
           </dl>
+        </CardContent>
+      </Card>
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="text-base">Trocar senha</CardTitle>
+        </CardHeader>
+        <CardContent className="max-w-md">
+          <TrocarSenhaForm />
         </CardContent>
       </Card>
       <form action={sair} className="mt-6 md:hidden">

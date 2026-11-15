@@ -22,6 +22,7 @@ export const auth = betterAuth({
       telefone: { type: "string", required: false, input: false },
       isMaster: { type: "boolean", required: false, defaultValue: false, input: false },
       ativo: { type: "boolean", required: false, defaultValue: true, input: false },
+      trocarSenha: { type: "boolean", required: false, defaultValue: false, input: false },
     },
   },
   session: {
@@ -37,6 +38,7 @@ export const auth = betterAuth({
       "/sign-in/email": { window: 60, max: 5 },
       "/request-password-reset": { window: 300, max: 3 },
       "/reset-password": { window: 300, max: 5 },
+      "/change-password": { window: 300, max: 10 },
     },
   },
   advanced: {

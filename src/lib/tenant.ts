@@ -14,6 +14,8 @@ export type UsuarioSessao = {
   name: string;
   email: string;
   isMaster: boolean;
+  /** Entrou com senha provisória: precisa trocar antes de usar o app. */
+  trocarSenha: boolean;
 };
 
 /** Usuário logado (ou null). Memoizado por requisição. */
@@ -22,15 +24,17 @@ export const getUsuario = cache(async (): Promise<UsuarioSessao | null> => {
   if (!sessao) return null;
   const u = await prisma.user.findUnique({
     where: { id: sessao.user.id },
-    select: { id: true, name: true, email: true, isMaster: true, ativo: true },
+    select: { id: true, name: true, email: true, isMaster: true, ativo: true, trocarSenha: true },
   });
   if (!u || !u.ativo) return null;
-  return { id: u.id, name: u.name, email: u.email, isMaster: u.isMaster };
+  return { id: u.id, name: u.name, email: u.email, isMaster: u.isMaster, trocarSenha: u.trocarSenha };
 });
 
+/** Usuário logado; manda para o login ou para a troca obrigatória de senha. */
 export async function requireUsuario() {
   const u = await getUsuario();
   if (!u) redirect("/login");
+  if (u.trocarSenha) redirect("/trocar-senha");
   return u;
 }
 
@@ -63,7 +67,7 @@ export type TenantContext = {
  */
 export const getTenantContext = cache(async (): Promise<TenantContext | null> => {
   const usuario = await getUsuario();
-  if (!usuario) return null;
+  if (!usuario || usuario.trocarSenha) return null; // requireTenant → /trocar-senha
 
   const preferido = (await cookies()).get(COOKIE_CONDOMINIO)?.value;
   let condominio: { id: string; nome: string } | null = null;
