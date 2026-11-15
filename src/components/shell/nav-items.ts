@@ -10,7 +10,7 @@ export function navItems({
   pendencias?: number;
 }): NavItem[] {
   const itens: NavItem[] = [
-    { href: "/", label: "Início", curto: "Início", icon: "home" },
+    { href: "/inicio", label: "Início", curto: "Início", icon: "home" },
     { href: "/comunicados", label: "Comunicados", curto: "Avisos", icon: "megaphone", contador: naoLidos },
     { href: "/reservas", label: "Reservas", curto: "Reservas", icon: "calendar" },
     { href: "/documentos", label: "Documentos", curto: "Docs", icon: "file" },

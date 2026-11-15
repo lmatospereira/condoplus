@@ -28,7 +28,7 @@ export function CadastroForm({ token, unidades }: { token: string; unidades: Uni
       <Field id="telefone" label="Telefone (opcional)">
         <Input id="telefone" name="telefone" type="tel" autoComplete="tel" maxLength={20} />
       </Field>
-      <Field id="senha" label="Senha" dica="Mínimo de 8 caracteres. Se você já tem conta no condoplus, use a senha dela.">
+      <Field id="senha" label="Senha" dica="Mínimo de 8 caracteres. Se você já tem conta na Zelora, use a senha dela.">
         <Input id="senha" name="senha" type="password" autoComplete="new-password" required minLength={8} />
       </Field>
       <Field id="unidadeId" label="Sua casa">

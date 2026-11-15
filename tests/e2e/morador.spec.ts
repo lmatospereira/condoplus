@@ -26,6 +26,9 @@ test("morador se cadastra pelo convite, é aprovado, reserva e lê comunicado", 
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Senha").fill("senha-e2e-123");
   await page.getByLabel("Sua casa").selectOption({ label: "Casa 16" });
+  // Se uma execução anterior já deixou titular na casa, entra como co-morador.
+  const jaTemTitular = page.getByLabel("Vou morar junto com o titular atual");
+  if (await jaTemTitular.isVisible()) await jaTemTitular.check();
   await page.getByLabel(/Li e aceito/).check();
   await page.getByRole("button", { name: "Enviar cadastro" }).click();
   await expect(page).toHaveURL(/\/aguardando$/);

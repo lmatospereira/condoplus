@@ -27,7 +27,7 @@ function Contador({ n, className }: { n?: number; className?: string }) {
 }
 
 function ativo(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function SideNav({ itens }: { itens: NavItem[] }) {

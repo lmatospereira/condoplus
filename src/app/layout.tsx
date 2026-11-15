@@ -6,17 +6,17 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: { default: "condoplus", template: "%s · condoplus" },
-  description: "Gestão simples de condomínios: comunicados, reservas, documentos e prestação de contas.",
-  applicationName: "condoplus",
-  appleWebApp: { capable: true, title: "condoplus", statusBarStyle: "default" },
+  title: { default: "Zelora", template: "%s · Zelora" },
+  description: "Zelora — Gestão que cuida de cada detalhe. Comunicados, reservas e moradores do seu condomínio.",
+  applicationName: "Zelora",
+  appleWebApp: { capable: true, title: "Zelora", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#2f5597",
+  themeColor: "#203D50",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

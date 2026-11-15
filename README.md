@@ -1,10 +1,12 @@
-# condoplus
+# Zelora
+
+> **Gestão que cuida de cada detalhe.**
 
 Gestão enxuta de condomínios residenciais de casas: **comunicados, reservas de espaços, documentos e prestação de contas**. É multi-tenant (um Admin Master administra vários condomínios), PWA, mobile-first e em pt-BR.
 
-A especificação completa está em [`ESPECIFICACAO.md`](ESPECIFICACAO.md) e as decisões técnicas, em [`docs/DECISOES.md`](docs/DECISOES.md).
+Especificações: [`ESPECIFICACAO.md`](ESPECIFICACAO.md) (escopo funcional original, escrito quando o projeto ainda se chamava "condoplus") e [`docs/ZELORA-SDD.md`](docs/ZELORA-SDD.md) (marca, design system, site institucional e processo de desenvolvimento). Decisões em [`docs/DECISOES.md`](docs/DECISOES.md) e [`docs/adr/`](docs/adr/).
 
-**Produção:** https://condoplus.163-176-209-227.sslip.io
+**Produção:** https://zelora.163-176-209-227.sslip.io
 
 ## Stack
 
@@ -27,7 +29,7 @@ npm run dev                   # http://localhost:3000
 
 | Papel | E-mail | Senha |
 |---|---|---|
-| Admin Master | `MASTER_EMAIL` do `.env` (padrão `master@condoplus.local`) | `MASTER_PASSWORD` (padrão `master123456`) |
+| Admin Master (entra só em `/acesso/master-dev`) | `MASTER_EMAIL` do `.env` (padrão `master@zelora.local`) | `MASTER_PASSWORD` (padrão `master123456`) |
 | Síndica e moradora da Casa 01 (Residencial Exemplo) | `sindico@exemplo.com` | `senha12345` |
 | Moradora (Casa 03 do Residencial Exemplo e Casa 1 da Vila Pequena) | `ana@exemplo.com` | `senha12345` |
 | Moradores | `bruno@`, `carla@`, `diego@`, `elisa@exemplo.com` | `senha12345` |
@@ -42,10 +44,20 @@ npm run dev                   # http://localhost:3000
 | `npm run dev` | servidor de desenvolvimento |
 | `npm run lint` / `npm run typecheck` | ESLint / TypeScript |
 | `npm test` | Vitest (permissões, isolamento entre tenants e regras de negócio; usa o banco `<db>_test`) |
-| `npm run test:e2e` | Playwright contra um servidor local na porta 3100 (veja `playwright.config.ts`) |
+| `npm run test:e2e` | Playwright contra um servidor local na porta 3100 (rode `npm run db:seed` antes; veja `playwright.config.ts`) |
 | `npm run build` | build de produção (standalone) |
 | `npm run db:migrate` | `prisma migrate dev` |
 | `npm run db:seed` | seed de exemplo |
+
+## Rotas de entrada
+
+| Rota | Quem usa |
+|---|---|
+| `/` | Página pública da Zelora, com os botões **Acesso do síndico** e **Acesso do morador** |
+| `/login` | Síndicos e moradores (contas master são recusadas aqui) |
+| `/acesso/<MASTER_LOGIN_PATH>` | Admin Master: URL escondida, 404 com a chave errada (ver ADR-002) |
+| `/convite/<token>` | Cadastro de morador pelo link do síndico |
+| `/inicio` | Início do app logado |
 
 ## Acesso sem e-mail
 
@@ -65,6 +77,7 @@ Todas estão documentadas em [`.env.example`](.env.example). As principais:
 | `APP_URL`, `BETTER_AUTH_URL` | URL pública (define os cookies `Secure` quando é https) |
 | `BETTER_AUTH_SECRET` | segredo de sessão (`openssl rand -base64 32`) |
 | `MASTER_EMAIL`, `MASTER_PASSWORD`, `MASTER_NAME` | Admin Master, criado no start se não existir |
+| `MASTER_LOGIN_PATH` | caminho secreto do login do master (`/acesso/<valor>`). Em produção: `openssl rand -hex 16` |
 | `STORAGE_DRIVER`, `S3_*`, `STORAGE_LOCAL_DIR` | storage de arquivos (fase 5) |
 | `UPLOAD_MAX_MB` | limite por arquivo (padrão 20) |
 | `EMAIL_PROVIDER`, `EMAIL_FROM`, `SMTP_*`, `RESEND_API_KEY` | e-mail (a OCI bloqueia a porta 25) |
@@ -76,39 +89,39 @@ Na produção, o `docker-compose.prod.yml` também usa `POSTGRES_PASSWORD`, `MIN
 O fluxo é o mesmo do financial-ledger:
 
 1. Push/merge na **`main`** → workflow **CI** (lint, typecheck, testes com Postgres, build).
-2. Com o CI verde → workflow **Deploy**: build `linux/arm64` (QEMU), push para `ghcr.io/lmatospereira/condoplus` (`latest`, `<sha>` e `v<VERSION>`), SSH na VPS, baixa o `docker-compose.prod.yml` daquele commit para `~/condoplus/docker-compose.yml`, `docker compose pull && up -d`, espera o healthcheck e testa `https://condoplus.163-176-209-227.sslip.io/api/health`.
+2. Com o CI verde → workflow **Deploy**: build `linux/arm64` (QEMU), push para `ghcr.io/lmatospereira/zelora` (`latest`, `<sha>` e `v<VERSION>`), SSH na VPS, baixa o `docker-compose.prod.yml` daquele commit para `~/zelora/docker-compose.yml`, `docker compose pull && up -d`, espera o healthcheck e testa `https://zelora.163-176-209-227.sslip.io/api/health`.
 
 A `develop` roda só o CI. Também dá para disparar o deploy pela aba **Actions → Deploy → Run workflow**.
 
 ### Segredos do repositório
 
-`VPS_HOST`, `VPS_USER` e `VPS_SSH_KEY`. A chave é uma ed25519 dedicada (`github-actions-deploy@condoplus`), autorizada em `~opc/.ssh/authorized_keys`.
+`VPS_HOST`, `VPS_USER` e `VPS_SSH_KEY`. A chave é uma ed25519 dedicada (`github-actions-deploy@zelora`), autorizada em `~opc/.ssh/authorized_keys`.
 
 ### Na VPS
 
 ```
-~/condoplus/
+~/zelora/
 ├── .env                 # segredos de produção (chmod 600, fora do git)
 ├── docker-compose.yml   # cópia do docker-compose.prod.yml (gravada pelo deploy)
 └── deploy.sh            # cópia de scripts/deploy.sh (deploy manual)
 ```
 
-- Nenhuma porta é publicada no host. O app entra na rede `devbox_default` com o alias `condoplus-app`, e o Caddy do devbox (`/home/opc/devbox/Caddyfile`) faz o HTTPS:
+- Nenhuma porta é publicada no host. O app entra na rede `devbox_default` com o alias `zelora-app`, e o Caddy do devbox (`/home/opc/devbox/Caddyfile`) faz o HTTPS:
 
   ```caddy
-  condoplus.{$DOMAIN} {
+  zelora.{$DOMAIN} {
   	tls {
   		issuer acme {
   			disable_http_challenge
   		}
   	}
   	encode zstd gzip
-  	reverse_proxy condoplus-app:3000
+  	reverse_proxy zelora-app:3000
   }
   ```
 
   Depois de editar o Caddyfile: `docker exec devbox-caddy-1 caddy validate --config /etc/caddy/Caddyfile && docker exec devbox-caddy-1 caddy reload --config /etc/caddy/Caddyfile`.
-- **Atualizar a versão:** basta fazer merge na `main`. Para fazer manualmente ou voltar uma versão: `~/condoplus/deploy.sh <sha|vX.Y.Z|latest>`.
-- **Logs:** `cd ~/condoplus && docker compose logs -f app` (com rotação de 10 MB × 3).
+- **Atualizar a versão:** basta fazer merge na `main`. Para fazer manualmente ou voltar uma versão: `~/zelora/deploy.sh <sha|vX.Y.Z|latest>`.
+- **Logs:** `cd ~/zelora && docker compose logs -f app` (com rotação de 10 MB × 3).
 - As migrations rodam sozinhas no start do container (`prisma migrate deploy`).
 - O backup diário e a restauração entram na fase 7.

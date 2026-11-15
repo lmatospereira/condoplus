@@ -29,7 +29,7 @@ const appUrl = process.env.APP_URL ?? "http://localhost:3000";
 
 export default async function MoradoresPage() {
   const { ator, condominio, db } = await requireTenant();
-  if (!can(ator, "morador.aprovar")) redirect("/");
+  if (!can(ator, "morador.aprovar")) redirect("/inicio");
 
   const [pendentes, unidades, convite, exMoradores] = await Promise.all([
     db.vinculo.findMany({

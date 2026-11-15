@@ -1,21 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  --background: oklch(0.985 0.002 250);
-  --foreground: oklch(0.2 0.02 255);
-  --card: oklch(1 0 0);
+  /* Tokens da marca Zelora (specs/002-design-system — iniciais, sujeitos a aprovação) */
+  --color-primary-900: #172c3c;
+  --color-primary-800: #203d50;
+  --color-primary-700: #2d5366;
+  --color-accent-500: #62d5b0;
+  --color-accent-600: #42b997;
+  --color-accent-100: #e2f7ef;
+  --color-neutral-950: #18232b;
+  --color-neutral-700: #53616b;
+  --color-neutral-500: #87949c;
+  --color-neutral-300: #dce3e7;
+  --color-neutral-100: #f4f7f8;
+  --color-white: #ffffff;
+
+  /* Papéis semânticos usados pelos componentes (mapeados nos tokens acima) */
+  --background: var(--color-neutral-100);
+  --foreground: var(--color-neutral-950);
+  --card: var(--color-white);
   --card-foreground: var(--foreground);
-  --primary: oklch(0.45 0.13 255);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.95 0.01 255);
-  --secondary-foreground: oklch(0.25 0.03 255);
-  --muted: oklch(0.955 0.006 255);
-  --muted-foreground: oklch(0.47 0.02 255);
-  --border: oklch(0.9 0.008 255);
-  --input: oklch(0.86 0.01 255);
-  --ring: oklch(0.55 0.13 255);
-  --destructive: oklch(0.55 0.2 27);
-  --success: oklch(0.55 0.13 150);
+  --primary: var(--color-primary-800);
+  --primary-foreground: var(--color-white);
+  --accent: var(--color-accent-500);
+  --accent-foreground: var(--color-primary-900);
+  --accent-soft: var(--color-accent-100);
+  --secondary: var(--color-accent-100);
+  --secondary-foreground: var(--color-primary-900);
+  --muted: #eaeff1;
+  --muted-foreground: var(--color-neutral-700);
+  --border: var(--color-neutral-300);
+  --input: #c9d3d9;
+  --ring: var(--color-accent-600);
+  --destructive: #c0392b;
+  --success: var(--color-accent-600);
 }
 
 @theme inline {
@@ -33,6 +51,14 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-brand-900: var(--color-primary-900);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --color-success: var(--success);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }

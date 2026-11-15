@@ -21,7 +21,7 @@ export async function criarReservaAction(_p: ResultadoAcao | null, fd: FormData)
   });
   if (r.ok && destino.url) {
     revalidatePath("/reservas");
-    revalidatePath("/");
+    revalidatePath("/inicio");
     redirect(destino.url);
   }
   return r;
@@ -32,7 +32,7 @@ export async function excluirReservaAction(reservaId: string): Promise<Resultado
   return executar(async () => {
     await excluirReserva(ator, condominio.id, reservaId);
     revalidatePath("/reservas");
-    revalidatePath("/");
+    revalidatePath("/inicio");
     return { ok: true, mensagem: "Reserva excluída." };
   });
 }

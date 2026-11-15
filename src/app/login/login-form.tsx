@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function LoginForm({ next }: { next?: string }) {
+export function LoginForm({ next, chaveMaster }: { next?: string; chaveMaster?: string }) {
   const [state, action, pending] = useActionState<LoginState, FormData>(entrar, {});
 
   return (
     <form action={action} className="flex flex-col gap-4" noValidate>
       {next ? <input type="hidden" name="next" value={next} /> : null}
+      {chaveMaster ? <input type="hidden" name="chaveMaster" value={chaveMaster} /> : null}
       <div className="flex flex-col gap-2">
         <Label htmlFor="email">E-mail</Label>
         <Input id="email" name="email" type="email" autoComplete="email" required defaultValue={state.email} />

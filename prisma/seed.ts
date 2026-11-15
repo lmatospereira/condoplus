@@ -116,7 +116,7 @@ async function main() {
     data: [
       { condominioId: cond.id, autorId: sindicoId, titulo: "Assembleia geral ordinária", conteudo: "Convocamos todos para a assembleia no dia 30, às 19h, no salão de festas.", categoria: "ASSEMBLEIA", importante: true, fixado: true },
       { condominioId: cond.id, autorId: sindicoId, titulo: "Manutenção do portão", conteudo: "O portão principal passará por manutenção na próxima terça, das 8h às 12h.", categoria: "MANUTENCAO" },
-      { condominioId: cond.id, autorId: sindicoId, titulo: "Boas-vindas ao condoplus", conteudo: "A partir de agora, comunicados, reservas e a prestação de contas ficam por aqui.", categoria: "GERAL" },
+      { condominioId: cond.id, autorId: sindicoId, titulo: "Boas-vindas ao zelora", conteudo: "A partir de agora, comunicados, reservas e a prestação de contas ficam por aqui.", categoria: "GERAL" },
     ],
   });
 

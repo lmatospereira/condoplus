@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Deploy manual na VPS (o caminho normal é o workflow .github/workflows/deploy.yml).
-# Uso, na VPS:  ~/condoplus/deploy.sh [tag]     (padrão: latest)
+# Uso, na VPS:  ~/zelora/deploy.sh [tag]     (padrão: latest)
 # Baixa o docker-compose.prod.yml da versão, puxa a imagem do GHCR, sobe e
 # confere o /api/health.
 set -euo pipefail
 
-REPO="lmatospereira/condoplus"
+REPO="lmatospereira/zelora"
 TAG="${1:-latest}"
 REF="main"
 [[ "$TAG" =~ ^[0-9a-f]{40}$ ]] && REF="$TAG"
@@ -18,7 +18,7 @@ docker compose pull app
 docker compose up -d
 
 for _ in $(seq 1 60); do
-  status=$(docker inspect --format '{{.State.Health.Status}}' condoplus-app-1 2>/dev/null || echo starting)
+  status=$(docker inspect --format '{{.State.Health.Status}}' zelora-app-1 2>/dev/null || echo starting)
   [[ "$status" == healthy ]] && break
   sleep 5
 done
@@ -28,4 +28,4 @@ if [[ "$status" != healthy ]]; then
   exit 1
 fi
 docker image prune -f >/dev/null
-echo "condoplus ($TAG) no ar."
+echo "zelora ($TAG) no ar."

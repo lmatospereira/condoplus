@@ -1,20 +1,20 @@
 # Ambiente de desenvolvimento: só Postgres e MinIO (o Next roda com `npm run dev`).
 # Portas apenas em 127.0.0.1 e fora das faixas usadas na VPS (80/443/8080/8081).
-name: condoplus-dev
+name: zelora-dev
 
 services:
   db:
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: condoplus
-      POSTGRES_PASSWORD: condoplus
-      POSTGRES_DB: condoplus
+      POSTGRES_USER: zelora
+      POSTGRES_PASSWORD: zelora
+      POSTGRES_DB: zelora
     ports:
       - "127.0.0.1:55432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U condoplus -d condoplus"]
+      test: ["CMD-SHELL", "pg_isready -U zelora -d zelora"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -23,8 +23,8 @@ services:
     image: cgr.dev/chainguard/minio:latest
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: condoplus
-      MINIO_ROOT_PASSWORD: condoplus-dev-secret
+      MINIO_ROOT_USER: zelora
+      MINIO_ROOT_PASSWORD: zelora-dev-secret
     ports:
       - "127.0.0.1:59000:9000"
       - "127.0.0.1:59001:9001"

@@ -10,8 +10,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: lmatospereira/condoplus
-  PUBLIC_URL: https://condoplus.163-176-209-227.sslip.io
+  IMAGE_NAME: lmatospereira/zelora
+  PUBLIC_URL: https://zelora.163-176-209-227.sslip.io
 
 # Enfileira (não cancela): um `docker compose up -d` não deve ser interrompido.
 concurrency:
@@ -87,7 +87,7 @@ jobs:
           script: |
             set -eu
             sha="${{ needs.build-and-push.outputs.sha }}"
-            cd ~/condoplus
+            cd ~/zelora
             # O compose de produção é versionado no repo; baixa o da versão sendo publicada.
             curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/${sha}/docker-compose.prod.yml" -o docker-compose.yml
             export IMAGE_TAG="$sha"
@@ -95,7 +95,7 @@ jobs:
             docker compose up -d
             # Espera o healthcheck do container (migrations + start).
             for i in $(seq 1 60); do
-              status=$(docker inspect --format '{{.State.Health.Status}}' condoplus-app-1 2>/dev/null || echo starting)
+              status=$(docker inspect --format '{{.State.Health.Status}}' zelora-app-1 2>/dev/null || echo starting)
               [ "$status" = healthy ] && break
               sleep 5
             done

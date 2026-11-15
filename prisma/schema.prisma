@@ -1,4 +1,4 @@
-// condoplus — modelo de dados
+// Zelora — modelo de dados
 // Índices únicos parciais (reserva ativa e síndico ativo) ficam em SQL puro na
 // migration inicial, porque o Prisma não os gera pelo schema. Veja docs/DECISOES.md.
 

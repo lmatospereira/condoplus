@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Defina sua senha" };
 export default async function TrocarSenhaPage() {
   const usuario = await getUsuario();
   if (!usuario) redirect("/login");
-  if (!usuario.trocarSenha) redirect(usuario.isMaster ? "/admin" : "/");
+  if (!usuario.trocarSenha) redirect(usuario.isMaster ? "/admin" : "/inicio");
 
   return (
     <main className="pt-safe mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center gap-6 px-4 py-10">
