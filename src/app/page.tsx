@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Eye, FileText, Handshake, KeyRound, Lock, Megaphone, ShieldCheck, Smartphone, Users, Wallet } from "lucide-react";
-import { Logo, SLOGAN } from "@/components/logo";
+import { SLOGAN } from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { getUsuario } from "@/lib/tenant";
 
 export const metadata: Metadata = {
   title: { absolute: `Zelora — ${SLOGAN}` },
   description:
-    "Zelora: comunicados, reservas de espaços e gestão de moradores para condomínios de casas, num app simples para síndicos e moradores.",
+    "Zelora: comunicados, reservas de espaços e gestão de moradores para condomínios de casas, num só app para síndicos e moradores.",
   openGraph: { title: "Zelora", description: SLOGAN, type: "website", locale: "pt_BR" },
 };
 
@@ -38,20 +39,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <header className="pt-safe border-b border-border bg-card/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          <Logo />
-          {usuario ? (
-            <Button asChild size="sm">
-              <Link href={destinoApp}>Abrir o app</Link>
-            </Button>
-          ) : (
-            <Button asChild size="sm" variant="outline">
-              <Link href="/login">Entrar</Link>
-            </Button>
-          )}
-        </div>
-      </header>
+      <SiteHeader usuario={usuario} />
 
       <main>
         <section className="bg-brand-900 text-white">
@@ -156,6 +144,19 @@ export default async function HomePage() {
           </div>
         </section>
 
+        <section aria-labelledby="contato-cta" className="border-t border-border">
+          <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-12 sm:flex-row sm:items-center sm:justify-between">
+            <h2 id="contato-cta" className="text-xl font-semibold tracking-tight">
+              Quer ver a Zelora no seu condomínio? Fale com a gente
+            </h2>
+            <Button asChild className="w-full sm:w-auto">
+              <Link href="/contato">
+                Fale com a gente <ArrowRight aria-hidden />
+              </Link>
+            </Button>
+          </div>
+        </section>
+
         <section className="border-t border-border bg-card">
           <div className="mx-auto grid max-w-5xl gap-6 px-4 py-12 md:grid-cols-3">
             {[
@@ -175,17 +176,7 @@ export default async function HomePage() {
         </section>
       </main>
 
-      <footer className="pb-safe border-t border-border">
-        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <Logo reduzida className="opacity-80" />
-          <p>
-            Zelora — {SLOGAN} ·{" "}
-            <Link href="/termos" className="underline underline-offset-4">
-              Termos e privacidade
-            </Link>
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
