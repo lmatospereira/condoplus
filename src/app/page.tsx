@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Eye, FileText, Handshake, KeyRound, Lock, Megaphone, ShieldCheck, Smartphone, Users, Wallet } from "lucide-react";
+import { ArrowRight, Eye, Handshake, KeyRound, Lock, ShieldCheck, Smartphone, Users } from "lucide-react";
 import { SLOGAN } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { InstalarApp } from "@/components/instalar-app";
+import { FUNCIONALIDADES } from "@/lib/funcionalidades";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { getUsuario } from "@/lib/tenant";
 
@@ -19,13 +20,6 @@ export const metadata: Metadata = {
  * completo segue specs/003-institutional-website (aguardando aprovação).
  * Os módulos mostram o estágio real (APP-003): disponível ou em breve.
  */
-const MODULOS = [
-  { Icone: Megaphone, titulo: "Comunicados", texto: "Avisos do síndico com destaque, fixados e controle de leitura por casa.", pronto: true },
-  { Icone: CalendarDays, titulo: "Reservas", texto: "Calendário do salão e de outros espaços, com regras e sem conflito de datas.", pronto: true },
-  { Icone: Users, titulo: "Moradores", texto: "Cadastro por link de convite, aprovação do síndico e transferência de casa.", pronto: true },
-  { Icone: FileText, titulo: "Documentos", texto: "Convenção, regimento, atas e contratos sempre à mão.", pronto: false },
-  { Icone: Wallet, titulo: "Prestação de contas", texto: "Despesas por categoria, comparativos e exportação para assembleia.", pronto: false },
-];
 
 const VALORES = [
   { Icone: Eye, titulo: "Transparência", texto: "Decisões, comunicados e contas visíveis para quem tem direito de ver." },
@@ -102,7 +96,7 @@ export default async function HomePage() {
           <h2 id="modulos" className="text-2xl font-semibold tracking-tight">O que a Zelora faz</h2>
           <p className="mt-1 text-muted-foreground">Tudo o que a gestão do seu condomínio precisa, organizado num só lugar.</p>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {MODULOS.map(({ Icone, titulo, texto, pronto }) => (
+            {FUNCIONALIDADES.map(({ slug, Icone, titulo, resumo: texto, pronto }) => (
               <li key={titulo} className="rounded-lg border border-border bg-card p-5">
                 <div className="flex items-center justify-between">
                   <span className="grid size-10 place-items-center rounded-md bg-accent-soft text-primary">
@@ -120,6 +114,13 @@ export default async function HomePage() {
                 </div>
                 <h3 className="mt-3 font-semibold">{titulo}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{texto}</p>
+                <Link
+                  href={`/funcionalidades/${slug}`}
+                  aria-label={`Saiba mais sobre ${titulo}`}
+                  className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  Saiba mais →
+                </Link>
               </li>
             ))}
           </ul>
