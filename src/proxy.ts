@@ -5,7 +5,7 @@ import { getSessionCookie } from "better-auth/cookies";
  * Checagem otimista: sem cookie de sessão, manda para o login.
  * A validação real (sessão no banco, tenant e permissões) acontece no servidor.
  */
-const PUBLICAS = ["/login", "/convite", "/termos", "/contato", "/acesso", "/offline", "/manifest.webmanifest", "/sw.js", "/icons", "/icon", "/apple-icon"];
+const PUBLICAS = ["/login", "/convite", "/termos", "/contato", "/funcionalidades", "/acesso", "/offline", "/manifest.webmanifest", "/sw.js", "/icons", "/icon", "/apple-icon"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
