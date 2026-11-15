@@ -14,7 +14,7 @@ export default function TermosPage() {
       <article className="mt-8 flex flex-col gap-4 text-sm leading-relaxed">
         <h1 className="text-2xl font-semibold">Termos de uso e privacidade</h1>
         <p>
-          O condoplus é usado pelo condomínio para comunicados, reservas de espaços, documentos e prestação de contas.
+          A Zelora é usada pelo condomínio para comunicados, reservas de espaços, documentos e prestação de contas.
         </p>
         <h2 className="text-lg font-semibold">Dados coletados</h2>
         <p>

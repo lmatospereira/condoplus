@@ -16,8 +16,18 @@ const ICONES: Record<string, LucideIcon> = {
   user: User,
 };
 
+function Contador({ n, className }: { n?: number; className?: string }) {
+  if (!n) return null;
+  return (
+    <span className={cn("min-w-5 rounded-full bg-destructive px-1.5 text-center text-[11px] font-semibold leading-5 text-white", className)}>
+      {n > 99 ? "99+" : n}
+      <span className="sr-only"> pendente(s)</span>
+    </span>
+  );
+}
+
 function ativo(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function SideNav({ itens }: { itens: NavItem[] }) {
@@ -39,6 +49,7 @@ export function SideNav({ itens }: { itens: NavItem[] }) {
           >
             <Icone className="size-5" aria-hidden />
             {item.label}
+            <Contador n={item.contador} className="ml-auto" />
           </Link>
         );
       })}
@@ -68,7 +79,10 @@ export function BottomNav({ itens }: { itens: NavItem[] }) {
                   on ? "text-primary" : "text-muted-foreground",
                 )}
               >
-                <Icone className="size-5" aria-hidden />
+                <span className="relative">
+                  <Icone className="size-5" aria-hidden />
+                  <Contador n={item.contador} className="absolute -right-3 -top-2" />
+                </span>
                 {item.curto}
               </Link>
             </li>

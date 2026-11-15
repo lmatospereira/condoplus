@@ -74,3 +74,20 @@ Registro das escolhas feitas durante a implementação (seção 15 da especifica
 ### Testes
 - Vitest: 47 testes (permissões, isolamento, regras da fase 2, datas no fuso de SP).
 - **Playwright** (`npm run test:e2e`, `tests/e2e`, perfil Pixel 7): o master cria o condomínio, renomeia uma casa, cadastra um espaço e o síndico; o síndico entra com a senha provisória e é obrigado a trocá-la; a troca de síndico tira o acesso do anterior. Roda contra um servidor local já de pé (ver `playwright.config.ts`); ainda não está no CI.
+
+## Moradores, reservas e comunicados (v0.3)
+
+- **Convite**: há no máximo um link ativo por condomínio (gerar um novo revoga o anterior), com validade opcional. O token tem 24 bytes aleatórios (base64url).
+- **Cadastro pelo link sem e-mail**: o morador escolhe a própria senha. Se o e-mail já tem conta, é **obrigatório informar a senha dessa conta**, para que ninguém crie um pedido de vínculo em nome de outra pessoa. O cadastro tem rate limit por IP (10 a cada 10 minutos), guardado na mesma tabela `rate_limit`, com chave `app:*`.
+- **A página do convite não expõe quem mora em cada casa**: mostra só se a casa já tem titular, para perguntar se a pessoa vai morar junto ou se a casa mudou de morador.
+- **Transferência**: ao aprovar, todos os vínculos MORADOR ativos da casa viram INATIVO, sem exclusão. As reservas futuras criadas por ex-moradores aparecem para o síndico manter ou excluir.
+- **Mudança de casa**: é um novo vínculo PENDENTE com `substituiVinculoId`. Ao aprovar, o vínculo antigo do mesmo usuário é desativado.
+- **Reservas**: confirmadas na hora. Datas passadas e dias bloqueados valem para todos; antecedência e limite mensal valem só para moradores (o síndico pode ignorar). O conflito é garantido pelo índice único parcial, e o erro P2002 vira "já está reservado". Há um teste de corrida com duas reservas simultâneas.
+- **Comunicados**: markdown simples renderizado como elementos React (sem HTML cru e sem dependência). A leitura é registrada ao abrir. "Lido por X de Y casas" conta as casas com morador ativo que têm ao menos um leitor. **Anexos** ficam para o módulo de Documentos (storage S3/MinIO).
+
+## Zelora (v0.3)
+
+- Renomeado de condoplus para **Zelora**. Ver [ADR-001](adr/ADR-001-renomeacao-zelora-e-site-no-mesmo-app.md).
+- Página pública em `/` e app logado em `/inicio`. O login do master fica em URL escondida, ver [ADR-002](adr/ADR-002-login-do-master-em-url-escondida.md).
+- Os tokens de cor e de raio de `docs/ZELORA-SDD.md` (SPEC 002) foram aplicados no `globals.css` como **tokens iniciais**. O documento diz que eles precisam de revisão e aprovação. O logo (telhado sobre um "Z", com versão principal e reduzida) é uma **proposta** para a SPEC 001, ainda a aprovar.
+- O site institucional completo (SPEC 003) ainda **não foi implementado**: o documento exige spec, design e tasks aprovados antes de implementar.

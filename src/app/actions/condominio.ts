@@ -24,5 +24,5 @@ export async function selecionarCondominio(formData: FormData) {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   });
-  redirect("/");
+  redirect("/inicio");
 }

@@ -20,18 +20,18 @@ jobs:
       postgres:
         image: postgres:17-alpine
         env:
-          POSTGRES_USER: condoplus
-          POSTGRES_PASSWORD: condoplus
-          POSTGRES_DB: condoplus
+          POSTGRES_USER: zelora
+          POSTGRES_PASSWORD: zelora
+          POSTGRES_DB: zelora
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U condoplus"
+          --health-cmd "pg_isready -U zelora"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql://condoplus:condoplus@localhost:5432/condoplus
-      TEST_DATABASE_URL: postgresql://condoplus:condoplus@localhost:5432/condoplus_test
+      DATABASE_URL: postgresql://zelora:zelora@localhost:5432/zelora
+      TEST_DATABASE_URL: postgresql://zelora:zelora@localhost:5432/zelora_test
       BETTER_AUTH_SECRET: ci-secret-not-used-in-production-0000
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
         run: npm run typecheck
 
       - name: Create test database
-        run: psql "$DATABASE_URL" -c 'CREATE DATABASE condoplus_test'
+        run: psql "$DATABASE_URL" -c 'CREATE DATABASE zelora_test'
 
       - name: Tests (Vitest)
         run: npm test

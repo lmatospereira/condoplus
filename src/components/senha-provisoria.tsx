@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 /** Mostra uma senha provisória UMA vez, com botão de copiar a mensagem pronta para enviar. */
 export function SenhaProvisoria({ nome, email, senha, url }: { nome: string; email: string; senha: string; url: string }) {
   const [copiado, setCopiado] = useState(false);
-  const mensagem = `Olá, ${nome.split(" ")[0]}! Seu acesso ao condoplus:\n${url}\nE-mail: ${email}\nSenha provisória: ${senha}\nNo primeiro acesso você vai definir uma senha nova.`;
+  const mensagem = `Olá, ${nome.split(" ")[0]}! Seu acesso à Zelora:\n${url}\nE-mail: ${email}\nSenha provisória: ${senha}\nNo primeiro acesso você vai definir uma senha nova.`;
 
   async function copiar() {
     try {

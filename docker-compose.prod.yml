@@ -1,7 +1,7 @@
-# Produção na VPS OCI (seção 16). Fica em ~/condoplus/docker-compose.yml na VPS,
+# Produção na VPS OCI (seção 16). Fica em ~/zelora/docker-compose.yml na VPS,
 # baixado pelo workflow de deploy a cada versão. Nenhuma porta é publicada no
 # host: o Caddy do devbox alcança o app pela rede externa `devbox_default`.
-name: condoplus
+name: zelora
 
 x-logging: &logging
   driver: json-file
@@ -11,10 +11,10 @@ x-logging: &logging
 
 services:
   app:
-    image: ghcr.io/lmatospereira/condoplus:${IMAGE_TAG:-latest}
+    image: ghcr.io/lmatospereira/zelora:${IMAGE_TAG:-latest}
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-condoplus}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-condoplus}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-zelora}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-zelora}
       STORAGE_DRIVER: s3
       S3_ENDPOINT: http://minio:9000
       S3_FORCE_PATH_STYLE: "true"
@@ -28,7 +28,7 @@ services:
     networks:
       internal: {}
       devbox_default:
-        aliases: [condoplus-app]
+        aliases: [zelora-app]
     restart: unless-stopped
     mem_limit: 1g
     logging: *logging
@@ -36,9 +36,9 @@ services:
   db:
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-condoplus}
+      POSTGRES_USER: ${POSTGRES_USER:-zelora}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-condoplus}
+      POSTGRES_DB: ${POSTGRES_DB:-zelora}
     volumes:
       - db-data:/var/lib/postgresql/data
     networks: [internal]

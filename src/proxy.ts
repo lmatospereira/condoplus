@@ -5,16 +5,16 @@ import { getSessionCookie } from "better-auth/cookies";
  * Checagem otimista: sem cookie de sessão, manda para o login.
  * A validação real (sessão no banco, tenant e permissões) acontece no servidor.
  */
-const PUBLICAS = ["/login", "/esqueci-senha", "/redefinir-senha", "/convite", "/termos", "/offline"];
+const PUBLICAS = ["/login", "/convite", "/termos", "/acesso", "/offline"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (PUBLICAS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+  if (pathname === "/" || PUBLICAS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return NextResponse.next();
   }
   if (!getSessionCookie(request)) {
     const url = new URL("/login", request.url);
-    if (pathname !== "/") url.searchParams.set("next", pathname);
+    url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
   return NextResponse.next();

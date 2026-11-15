@@ -30,6 +30,6 @@ export async function trocarSenha(_prev: ResultadoAcao | null, formData: FormDat
 
   const eraProvisoria = usuario.trocarSenha;
   if (eraProvisoria) await prisma.user.update({ where: { id: usuario.id }, data: { trocarSenha: false } });
-  if (eraProvisoria) redirect(usuario.isMaster ? "/admin" : "/");
+  if (eraProvisoria) redirect(usuario.isMaster ? "/admin" : "/inicio");
   return { ok: true, mensagem: "Senha alterada. As outras sessões foram encerradas." };
 }

@@ -10,19 +10,32 @@ const nomeCond = `E2E ${id}`;
 const emailSindico = `sindico-${id}@e2e.local`;
 const emailNovo = `novo-${id}@e2e.local`;
 
+const MASTER_PATH = process.env.E2E_MASTER_PATH ?? "master-dev";
+
 async function entrar(page: Page, email: string, senha: string) {
-  await page.goto("/login");
+  await page.goto(email.startsWith("master@") ? `/acesso/${MASTER_PATH}` : "/login");
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Senha").fill(senha);
   await page.getByRole("button", { name: "Entrar" }).click();
+  await page.waitForURL((u) => !u.pathname.startsWith("/login") && !u.pathname.startsWith("/acesso"));
 }
 
 async function sair(page: Page) {
   await page.context().clearCookies();
 }
 
+test("o /login comum recusa o master; a URL escondida aceita", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("E-mail").fill("master@zelora.local");
+  await page.getByLabel("Senha").fill("master123456");
+  await page.getByRole("button", { name: "Entrar" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "E-mail ou senha incorretos." })).toBeVisible();
+  await expect(page).toHaveURL(/\/login/);
+  expect((await page.goto("/acesso/chave-errada"))?.status()).toBe(404);
+});
+
 test("master cadastra condomínio, espaço e síndico; síndico define a senha", async ({ page }) => {
-  await entrar(page, "master@condoplus.local", "master123456");
+  await entrar(page, "master@zelora.local", "master123456");
   await expect(page).toHaveURL(/\/admin$/);
 
   // Novo condomínio com 5 casas
@@ -75,7 +88,7 @@ test("master cadastra condomínio, espaço e síndico; síndico define a senha",
 
   // Master troca o síndico; o anterior perde o acesso
   await sair(page);
-  await entrar(page, "master@condoplus.local", "master123456");
+  await entrar(page, "master@zelora.local", "master123456");
   await page.getByRole("link", { name: new RegExp(nomeCond) }).click();
   await expect(page.getByRole("heading", { level: 1, name: nomeCond })).toBeVisible();
   await page.locator("#sindico-nome").fill("Novo Síndico");

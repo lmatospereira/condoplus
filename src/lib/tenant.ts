@@ -40,7 +40,7 @@ export async function requireUsuario() {
 
 export async function requireMaster() {
   const u = await requireUsuario();
-  if (!u.isMaster) redirect("/");
+  if (!u.isMaster) redirect("/inicio");
   return u;
 }
 
